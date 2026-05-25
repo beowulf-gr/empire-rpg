@@ -309,8 +309,11 @@ export function RealmDetailPage() {
             DM tools
           </Link>
           <span className="text-[var(--ink-faint)]">·</span>
+          {/* Plain <a> because we want a real new-tab navigation; basename from
+              the BrowserRouter doesn't apply to raw anchors, so we explicitly
+              prepend BASE_URL (which is '/empire/' in prod, '/' in dev). */}
           <a
-            href={`/realms/${id}/log`}
+            href={`${import.meta.env.BASE_URL}realms/${id}/log`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[var(--ink-soft)] hover:text-[var(--wine)] transition-colors"
