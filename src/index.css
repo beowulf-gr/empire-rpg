@@ -1,0 +1,230 @@
+@import "tailwindcss";
+
+/* ============================================================
+ * Empire RPG — parchment + ink theme.
+ *
+ * Light mode  : warm cream paper with a faint grain, ink-brown text,
+ *               wine-red accents and a worn-gold flourish on headings.
+ * Dark mode   : deep ink-blue night sky, parchment-warm text, the same
+ *               wine + gold accents but slightly muted.
+ *
+ * The grain is generated via an inline SVG turbulence filter so we don't
+ * ship an image — pure CSS, dark-mode-aware, performs fine.
+ * ============================================================ */
+
+:root {
+  font-family: 'Iowan Old Style', 'Palatino', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  line-height: 1.55;
+  color-scheme: light dark;
+
+  /* Empire palette */
+  --paper:        #f7f0e3;  /* warm cream */
+  --paper-2:      #efe7d4;  /* slightly deeper crease */
+  --paper-edge:   #d9cbab;  /* soft amber border */
+  --ink:          #2a221a;  /* deep coffee-ink */
+  --ink-soft:     #5a4a36;  /* aged ink for muted text */
+  --wine:         #7a1f2b;  /* burgundy accent */
+  --wine-soft:    #a44651;  /* hover */
+  --gold:         #c9a23b;  /* worn gold flourish */
+  --gold-soft:    #e2c673;  /* highlight */
+  --ivy:          #3b5a2a;  /* "thrived" emerald shifted toward leaf */
+  --rust:         #8a3b1c;  /* warning */
+  --shadow:       rgba(72, 51, 30, 0.10);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper:        #14181f;  /* ink-blue night */
+    --paper-2:      #1c2129;
+    --paper-edge:   #2d3340;
+    --ink:          #ece2cb;  /* parchment text */
+    --ink-soft:     #b3a78b;
+    --wine:         #c45562;
+    --wine-soft:    #d97c87;
+    --gold:         #c9a23b;
+    --gold-soft:    #e6c97a;
+    --ivy:          #6f9656;
+    --rust:         #d18553;
+    --shadow:       rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ---------- Body: parchment grain ---------- */
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background-color: var(--paper);
+  /* Tiny SVG grain — fractalNoise feels papery; opacity is very low so it
+     reads as "texture", not "dirty". */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 0.16 0 0 0 0 0.12 0 0 0 0 0.07 0 0 0 0.13 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-repeat: repeat;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    /* Slightly stronger grain on the dark mode so it doesn't look flat. */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.78 0 0 0 0 0.62 0 0 0 0.09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+}
+
+/* ---------- Headings: serif with worn-gold flourish ---------- */
+
+h1, h2, h3, h4 {
+  font-family: 'Cinzel', 'Trajan Pro', 'Iowan Old Style', 'Palatino', Georgia, serif;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+/* Decorative gold rule used under page-level H1s. Components opt in by
+ * adding `class="empire-heading"`. */
+.empire-heading {
+  position: relative;
+  padding-bottom: 0.4rem;
+}
+.empire-heading::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 3.5rem;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold-soft) 60%, transparent 100%);
+  border-radius: 2px;
+}
+
+/* A centred variant — for the homepage / login form titles. */
+.empire-heading-center {
+  position: relative;
+  padding-bottom: 0.5rem;
+  text-align: center;
+}
+.empire-heading-center::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 4rem;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%);
+}
+
+/* Section header (H2). Tinier flourish, sits on the same baseline. */
+.empire-subheading {
+  position: relative;
+  padding-bottom: 0.3rem;
+}
+.empire-subheading::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
+}
+
+/* ---------- Surface: parchment card ----------
+ *
+ * Replaces the plain `border + bg-white` pattern. Slight warm shadow,
+ * subtle inner highlight at the top to feel like an actual sheet of paper.
+ */
+.parchment-card {
+  background-color: var(--paper-2);
+  border: 1px solid var(--paper-edge);
+  border-radius: 6px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 6px 20px -10px var(--shadow),
+    0 2px 4px -2px var(--shadow);
+}
+
+@media (prefers-color-scheme: dark) {
+  .parchment-card {
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 8px 20px -8px var(--shadow);
+  }
+}
+
+/* ---------- Buttons ----------
+ *
+ * `.empire-button` is the primary CTA — wine-coloured with a gold edge
+ * highlight on hover/focus.
+ */
+.empire-button {
+  background-color: var(--wine);
+  color: #fbf5e6;
+  border: 1px solid color-mix(in oklab, var(--wine) 70%, black 30%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset;
+  transition: background-color 0.15s, box-shadow 0.15s, transform 0.05s;
+}
+.empire-button:hover:not(:disabled) {
+  background-color: var(--wine-soft);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 0 0 1px var(--gold);
+}
+.empire-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.empire-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* `.empire-button-ghost` — secondary action / "cancel". */
+.empire-button-ghost {
+  background-color: transparent;
+  color: var(--ink);
+  border: 1px solid var(--paper-edge);
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.empire-button-ghost:hover:not(:disabled) {
+  background-color: color-mix(in oklab, var(--paper) 70%, var(--ink) 6%);
+  border-color: color-mix(in oklab, var(--paper-edge) 60%, var(--ink) 30%);
+}
+
+/* ---------- Decorative flourish ornament ----------
+ *
+ * <span class="empire-divider"></span> renders a small centered
+ * gold-dot ornament: ─◆─. Use between major page sections.
+ */
+.empire-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--gold);
+  font-size: 0.6rem;
+  margin: 1.25rem 0;
+}
+.empire-divider::before,
+.empire-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-soft) 30%, var(--gold-soft) 70%, transparent);
+}
+.empire-divider::after { background: linear-gradient(270deg, transparent, var(--gold-soft) 30%, var(--gold-soft) 70%, transparent); }
+
+/* ---------- Misc tweaks ---------- */
+
+/* Slightly softer focus ring, gold-tinted, that works on dark + light. */
+*:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Tabular numbers in stat readouts feel more deliberate. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* When Tailwind's font-serif gets used we want our serif stack, not the
+ * generic browser default. */
+.font-serif {
+  font-family: 'Cinzel', 'Trajan Pro', 'Iowan Old Style', 'Palatino', Georgia, serif !important;
+}
