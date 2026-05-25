@@ -10,9 +10,12 @@ import { RealmDetailPage } from './pages/RealmDetailPage'
 import { RealmEditPage } from './pages/RealmEditPage'
 import { RealmLogPage } from './pages/RealmLogPage'
 
+// `basename` must match `base` in vite.config.ts and the nginx `location`
+// path. With this set, <Link to="/realms"> resolves to /empire/realms in
+// the URL bar, and React Router strips /empire when matching routes.
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/empire">
       <AuthProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
