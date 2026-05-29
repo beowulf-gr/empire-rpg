@@ -840,9 +840,3 @@ function ResourceGrid({ pool }: { pool: ResourcePool }) {
     </div>
   )
 }
-ibold">{value}</div>
-        </div>
-      ))}
-    </div>
-  )
-}
