@@ -13,60 +13,75 @@ interface Props {
 }
 
 /**
- * Bucket actions by relevance to the current season.
+ * The four season-relevance subsections each part of the UI is split into.
  *
- *   mandatory: obligatory + auto-resolved this season (always shown as completed
- *              once they've fired; for MVP they fire during transitions)
+ *   mandatory: obligatory + auto-resolved in this season
  *   available: discretionary action whose home season matches
  *   penalty:   action available this season at a penalty
  *   generic:   any-season actions (Buy, Sell, Trade Goods, Loans, Taxes, Diplomacy)
  */
-function bucketize(season: Season): {
+interface Buckets {
   mandatory: ActionDefinition[]
   available: ActionDefinition[]
   penalty: ActionDefinition[]
   generic: ActionDefinition[]
-} {
-  const mandatory: ActionDefinition[] = []
-  const available: ActionDefinition[] = []
-  const penalty: ActionDefinition[] = []
-  const generic: ActionDefinition[] = []
+}
+
+function emptyBuckets(): Buckets {
+  return { mandatory: [], available: [], penalty: [], generic: [] }
+}
+
+function bucketCount(b: Buckets): number {
+  return b.mandatory.length + b.available.length + b.penalty.length + b.generic.length
+}
+
+/**
+ * Sort every registered action into one of four season-relevance subsections
+ * AND one of two availability parts:
+ *
+ *   - `available` (part 1): action is NOT in takenIds — user can take it now.
+ *   - `unavailable` (part 2): action IS in takenIds — auto-completed mandatory,
+ *     exhausted limited, or otherwise "already done this season".
+ *
+ * Actions that have no place this season at all (wrong season + no penalty
+ * restriction) are dropped from both parts.
+ */
+function bucketize(
+  season: Season,
+  takenIds: Set<ActionId>,
+): { available: Buckets; unavailable: Buckets } {
+  const available = emptyBuckets()
+  const unavailable = emptyBuckets()
 
   for (const a of ACTION_REGISTRY) {
     const isHomeSeason = a.availability.seasons.includes(season)
     const isProhibited = a.availability.prohibited?.includes(season) ?? false
     const restriction = a.availability.restricted?.find((r) => r.season === season)
 
+    let subsection: keyof Buckets | null = null
+
     if (a.descriptors.includes('obligatory') && a.kind === 'auto' && isHomeSeason) {
-      mandatory.push(a)
-      continue
-    }
-
-    if (a.category === 'generic') {
-      // Generic actions: home-season for them is "any" (they have all 4 listed). Only
-      // bucket here if no penalty applies in current season; otherwise mark as penalty.
+      subsection = 'mandatory'
+    } else if (a.category === 'generic') {
       if (isProhibited) continue
-      if (restriction) penalty.push(a)
-      else generic.push(a)
-      continue
+      subsection = restriction ? 'penalty' : 'generic'
+    } else if (isHomeSeason) {
+      subsection = 'available'
+    } else if (restriction) {
+      subsection = 'penalty'
+    } else {
+      continue // wrong season, no restriction → not relevant this season at all
     }
 
-    if (isHomeSeason) {
-      available.push(a)
-      continue
-    }
-    if (restriction) {
-      penalty.push(a)
-      continue
-    }
-    // Otherwise: not available this season at all → skip
+    const part = takenIds.has(a.id) ? unavailable : available
+    part[subsection].push(a)
   }
 
-  return { mandatory, available, penalty, generic }
+  return { available, unavailable }
 }
 
 export function ActionsSection({ season, takenIds, onTakeAction }: Props) {
-  const { mandatory, available, penalty, generic } = bucketize(season)
+  const { available, unavailable } = bucketize(season, takenIds)
 
   const renderAction = (a: ActionDefinition, statusOverride?: 'penalty') => {
     const restriction = a.availability.restricted?.find((r) => r.season === season)
@@ -88,6 +103,34 @@ export function ActionsSection({ season, takenIds, onTakeAction }: Props) {
     )
   }
 
+  const renderBuckets = (b: Buckets) => (
+    <>
+      {b.mandatory.length > 0 && (
+        <Group title="Mandatory this season" hint="Auto-resolved when the season transitions.">
+          {b.mandatory.map((a) => renderAction(a))}
+        </Group>
+      )}
+      {b.available.length > 0 && (
+        <Group title="Available this season">
+          {b.available.map((a) => renderAction(a))}
+        </Group>
+      )}
+      {b.penalty.length > 0 && (
+        <Group title="Available with a penalty">
+          {b.penalty.map((a) => renderAction(a, 'penalty'))}
+        </Group>
+      )}
+      {b.generic.length > 0 && (
+        <Group title="Generic (any season)">
+          {b.generic.map((a) => renderAction(a))}
+        </Group>
+      )}
+    </>
+  )
+
+  const unavailableCount = bucketCount(unavailable)
+  const availableCount = bucketCount(available)
+
   return (
     <section className="mb-8">
       <h2 className="empire-subheading text-xl font-serif font-semibold mb-3 flex items-center gap-2">
@@ -95,28 +138,35 @@ export function ActionsSection({ season, takenIds, onTakeAction }: Props) {
         Actions
       </h2>
 
-      {mandatory.length > 0 && (
-        <Group title="Mandatory this season" hint="Auto-resolved when the season transitions.">
-          {mandatory.map((a) => renderAction(a))}
-        </Group>
+      {availableCount > 0 ? (
+        renderBuckets(available)
+      ) : (
+        <p className="text-sm text-stone-500 italic mb-3">
+          No actions available this season. Expand the section below to review what's
+          already been resolved or used up.
+        </p>
       )}
 
-      {available.length > 0 && (
-        <Group title="Available this season">
-          {available.map((a) => renderAction(a))}
-        </Group>
-      )}
-
-      {penalty.length > 0 && (
-        <Group title="Available with a penalty">
-          {penalty.map((a) => renderAction(a, 'penalty'))}
-        </Group>
-      )}
-
-      {generic.length > 0 && (
-        <Group title="Generic (any season)">
-          {generic.map((a) => renderAction(a))}
-        </Group>
+      {unavailableCount > 0 && (
+        <details className="group mt-4 border-t border-[var(--paper-edge)] pt-3">
+          <summary
+            className="cursor-pointer list-none flex items-baseline justify-between text-sm font-semibold text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 [&::-webkit-details-marker]:hidden"
+          >
+            <span className="flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="inline-block text-xs transition-transform duration-150 group-open:rotate-90"
+              >
+                ▶
+              </span>
+              Unavailable / completed ({unavailableCount})
+            </span>
+            <span className="text-xs text-stone-500 font-normal">
+              Auto-resolved obligatories and exhausted Limited actions
+            </span>
+          </summary>
+          <div className="mt-3">{renderBuckets(unavailable)}</div>
+        </details>
       )}
     </section>
   )
