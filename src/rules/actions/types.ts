@@ -82,6 +82,8 @@ export type ActionPanel =
   | 'SellGoods'
   | 'ProduceTradeGoods'
   | 'SellTradeGoods'
+  | 'BuyFromTravelingMerchant'
+  | 'SellToTravelingMerchant'
   | 'RaiseLoans'
   | 'RaiseTaxes'
   | 'DispatchDiplomats'
@@ -191,6 +193,8 @@ export type ActionId =
   | 'dispatch_diplomats'
   // Homebrew
   | 'move_settlers'
+  | 'buy_from_traveling_merchant'
+  | 'sell_to_traveling_merchant'
 
 // ============================================================
 // Per-realm runtime state for actions

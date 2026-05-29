@@ -610,6 +610,44 @@ export const ACTION_REGISTRY: ActionDefinition[] = [
     implemented: true,
   },
   {
+    id: 'buy_from_traveling_merchant',
+    name: 'Buy from Traveling Merchant',
+    category: 'generic',
+    descriptors: ['limited'],
+    shortDescription:
+      'Spend 1 gold for a small parcel from a wandering trader (e.g. 6 stone, 10 food, 7 lumber). No port or road needed. Forbidden in winter. Once per season.',
+    bookText:
+      "Homebrew addition. Closes the soft-lock where an inland realm with no hills or mountains has no way to acquire stone (Buy Goods requires a port or road, both of which are gated by stone). A wandering trader visits regardless of infrastructure, but his cart is small and his prices steep: 1 gold buys half what the open market would (food 10, lumber 7, stone 6, copper 5, iron 5 per gold). He carries only the common bulk goods — no silver, gold ore, mithral, or adamantine. The road is too dangerous in winter, so he stays home. Limited: one purchase per season; the Sell variant has its own separate cap.",
+    cost: { gold: 1 },
+    availability: {
+      seasons: ['spring', 'summer', 'fall'],
+      prohibited: ['winter'],
+    },
+    kind: 'interactive',
+    panel: 'BuyFromTravelingMerchant',
+    source: 'homebrew',
+    implemented: true,
+  },
+  {
+    id: 'sell_to_traveling_merchant',
+    name: 'Sell to Traveling Merchant',
+    category: 'generic',
+    descriptors: ['limited'],
+    shortDescription:
+      'Sell a small parcel to a wandering trader for 1 gold (e.g. 24 stone, 40 food, or 2 W&A / Wooden Goods). No port or road needed. Forbidden in winter. Once per season.',
+    bookText:
+      "Homebrew addition — the Sell counterpart to Buy from Traveling Merchant. The trader pays you 1 gold but expects to flip the goods at a profit, so he accepts only at half the open-market price. Resources: hand over food 40, lumber 30, stone 24, copper 20, or iron 20 per gold. Trade goods: he takes Weapons & Armor and Wooden Goods at 2 units per gold but won't touch Exotic or Magic Items (too risky for his cart). Silver, gold ore, mithral and adamantine are likewise refused. Forbidden in winter. Limited: one sale per season; the Buy variant has its own separate cap.",
+    cost: { variable: true, note: 'Hand over the listed unit count to gain 1 gold.' },
+    availability: {
+      seasons: ['spring', 'summer', 'fall'],
+      prohibited: ['winter'],
+    },
+    kind: 'interactive',
+    panel: 'SellToTravelingMerchant',
+    source: 'homebrew',
+    implemented: true,
+  },
+  {
     id: 'raise_loans',
     name: 'Raise Loans',
     category: 'generic',

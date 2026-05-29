@@ -40,6 +40,8 @@ import { RecruitSettlersPanel } from '../components/actions/panels/RecruitSettle
 import { LevelUpUnitPanel } from '../components/actions/panels/LevelUpUnitPanel'
 import { SellGoodsPanel } from '../components/actions/panels/SellGoodsPanel'
 import { BuyGoodsPanel } from '../components/actions/panels/BuyGoodsPanel'
+import { BuyFromTravelingMerchantPanel } from '../components/actions/panels/BuyFromTravelingMerchantPanel'
+import { SellToTravelingMerchantPanel } from '../components/actions/panels/SellToTravelingMerchantPanel'
 import { RaiseTaxesPanel } from '../components/actions/panels/RaiseTaxesPanel'
 import { RaiseLoansPanel } from '../components/actions/panels/RaiseLoansPanel'
 import { ProduceTradeGoodsPanel } from '../components/actions/panels/ProduceTradeGoodsPanel'
@@ -111,7 +113,7 @@ const NEXT_SEASON: Record<Season, Season> = {
 
 // Which interactive panel is currently open, if any. Each new panel added in
 // later steps gets a string id here.
-type OpenPanel = null | 'move_settlers' | 'harvest_terrain' | 'survey_for_new_vein' | 'build_roads' | 'build_stronghold' | 'convert_terrain' | 'muster_soldiers' | 'hire_soldiers' | 'recruit_ministers' | 'recruit_settlers' | 'sell_goods' | 'buy_goods' | 'raise_taxes' | 'raise_loans' | 'produce_trade_goods' | 'sell_trade_goods' | 'outfit_unit' | 'level_up_unit'
+type OpenPanel = null | 'move_settlers' | 'harvest_terrain' | 'survey_for_new_vein' | 'build_roads' | 'build_stronghold' | 'convert_terrain' | 'muster_soldiers' | 'hire_soldiers' | 'recruit_ministers' | 'recruit_settlers' | 'sell_goods' | 'buy_goods' | 'buy_from_traveling_merchant' | 'sell_to_traveling_merchant' | 'raise_taxes' | 'raise_loans' | 'produce_trade_goods' | 'sell_trade_goods' | 'outfit_unit' | 'level_up_unit'
 
 // ============================================================
 // Page
@@ -541,6 +543,20 @@ export function RealmDetailPage() {
           onClose={() => setOpenPanel(null)}
         />
       )}
+      {openPanel === 'buy_from_traveling_merchant' && (
+        <BuyFromTravelingMerchantPanel
+          realm={realm}
+          realmId={realm.id}
+          onClose={() => setOpenPanel(null)}
+        />
+      )}
+      {openPanel === 'sell_to_traveling_merchant' && (
+        <SellToTravelingMerchantPanel
+          realm={realm}
+          realmId={realm.id}
+          onClose={() => setOpenPanel(null)}
+        />
+      )}
       {openPanel === 'raise_taxes' && (
         <RaiseTaxesPanel
           realm={realm}
@@ -819,6 +835,12 @@ function ResourceGrid({ pool }: { pool: ResourcePool }) {
         >
           <div className="text-stone-500 text-xs">{RESOURCE_LABELS[key]}</div>
           <div className="font-semibold">{value}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+ibold">{value}</div>
         </div>
       ))}
     </div>

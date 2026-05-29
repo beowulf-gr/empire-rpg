@@ -25,6 +25,8 @@ import { unitsLeveledThisSpring } from './military'
 const SINGLE_USE_LIMITED: ReadonlySet<ActionId> = new Set<ActionId>([
   'raise_loans',
   'raise_taxes',
+  'buy_from_traveling_merchant',
+  'sell_to_traveling_merchant',
 ])
 
 /**

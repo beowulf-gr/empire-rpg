@@ -2,6 +2,7 @@ import type { ResourceKey, StrongholdKind } from '../../types/rules'
 import type { RealmState, TurnEvent } from '../../rules/state'
 import { findActionById } from '../../rules/actions/registry'
 import { MINISTER_ROLE_LABEL } from '../../rules/actions/ministers'
+import { TRADE_GOOD_LABEL, type TradeGoodKind } from '../../rules/actions/tradeGoods'
 
 const RESOURCE_LABELS: Record<ResourceKey, string> = {
   food: 'Food',
@@ -416,6 +417,23 @@ export function describeEvent(e: TurnEvent, realm?: RealmState): string {
       const markup = p.critFailMarkup as number
       const totalCost = p.totalCost as number
       return `Bought ${delivered} ${RESOURCE_LABELS[resource] ?? resource} for ${totalCost} gp (gouged: ${cost} base + ${markup} markup, crit fail).`
+    }
+
+    case 'buy_from_traveling_merchant': {
+      const resource = p.resource as ResourceKey
+      const unitsReceived = p.unitsReceived as number
+      return `Bought ${unitsReceived} ${RESOURCE_LABELS[resource] ?? resource} from a traveling merchant for 1 gp.`
+    }
+
+    case 'sell_to_traveling_merchant': {
+      const kind = p.kind as 'resource' | 'trade_good'
+      const unitsHandedOver = p.unitsHandedOver as number
+      if (kind === 'resource') {
+        const resource = p.resource as ResourceKey
+        return `Sold ${unitsHandedOver} ${RESOURCE_LABELS[resource] ?? resource} to a traveling merchant for 1 gp.`
+      }
+      const tradeGood = p.tradeGood as TradeGoodKind
+      return `Sold ${unitsHandedOver} ${TRADE_GOOD_LABEL[tradeGood] ?? tradeGood} to a traveling merchant for 1 gp.`
     }
 
     case 'raise_taxes': {
